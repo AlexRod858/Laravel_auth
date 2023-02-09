@@ -16,11 +16,11 @@ class CommunityLinkController extends Controller
      */
     public function index()
     {
-        // POSIBLE ERROR AQUI $CHANNELS//
-        $links = CommunityLink::paginate(25);
-        $channels = Channel::orderBy('title','asc')->get();
-        return view('community/index', compact('links','channels'));
-        
+        // POSIBLE ERROR AQUI $links//
+        $links = CommunityLink::where('approved', true)->paginate(25);
+        $channels = Channel::orderBy('title', 'asc')->get();
+        return view('community/index', compact('links', 'channels'));
+
     }
 
     /**
@@ -28,6 +28,7 @@ class CommunityLinkController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function create()
     {
         //
@@ -46,15 +47,17 @@ class CommunityLinkController extends Controller
             'link' => 'required|active_url',
             'channel_id' => 'required|exists:channels,id'
         ]);
-        
-        request()->merge(['user_id' => Auth::id(), 'channel_id']);
+        /////
+        $approved = Auth::user()->trusted ? true : false;
+        request()->merge(['user_id' => Auth::id(), 'approved' => $approved]);
+        /////
         CommunityLink::create($request->all());
-        // $request->path();
-        // $request->url();
-        // $request->input();
-        // $request->fullUrl();
-        return back();
-        //
+        if ($approved) {
+            return back()->with('success','Link created successfully');
+
+        } else {
+            return back()->with('warning', 'Link created successfully but u are not approved');
+        }
     }
 
     /**
