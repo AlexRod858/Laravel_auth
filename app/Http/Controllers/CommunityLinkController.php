@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CommynityLinkForm;
 use App\Models\Channel;
 use App\Models\CommunityLink;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class CommunityLinkController extends Controller
     public function index()
     {
         // POSIBLE ERROR AQUI $links//
-        $links = CommunityLink::where('approved', true)->paginate(25);
+        $links = CommunityLink::where('approved', true)->latest('updated_at')->paginate(25);
         $channels = Channel::orderBy('title', 'asc')->get();
         return view('community/index', compact('links', 'channels'));
 
@@ -40,7 +41,7 @@ class CommunityLinkController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CommynityLinkForm $request)
     {
         $this->validate($request, [
             'title' => 'required',
@@ -49,13 +50,25 @@ class CommunityLinkController extends Controller
         ]);
         /////
         $approved = Auth::user()->trusted ? true : false;
-        request()->merge(['user_id' => Auth::id(), 'approved' => $approved]);
+        $request->merge(['user_id' => Auth::id(), 'approved' => $approved]);
         /////
         CommunityLink::create($request->all());
-        if ($approved) {
+
+        if ($approved ) {
             return back()->with('success','Link created successfully');
+            //////////////////////////////////////////////////////
+            if(CommunityLink::hasAlreadyBeenSubmitted($request['link'])){
+                CommunityLink::hasAlreadyBeenSubmitted($request['link']);
+                return back()->with('success','Link updated successfully');
+            }else{
+                CommunityLink::create($request->all());
+                return back()->with('success','Link created successfully');
+            }
+
 
         } else {
+            CommunityLink::create($request->all());
+            ///////////////////////////////////////////////////////
             return back()->with('warning', 'Link created successfully but u are not approved');
         }
     }

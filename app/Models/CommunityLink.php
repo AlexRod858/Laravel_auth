@@ -24,4 +24,20 @@ class CommunityLink extends Model
     {
         return $this->belongsTo(Channel::class);
     }
+// Para actualizar el timestamp almacenaremos en una variable el registro devuelto y llamamos al método touch() y save().
+// Reescribe el código en el controlador para implementar esta funcionalidad
+//  y que siga funcionando la anterior. Debes probar que un usuario verificado 
+//  puede seguir enviando enlaces y si el enlace está repetido se actualiza 
+//  el timestamp y se sube a la primera posición. Si un usuario no verificado 
+//  sube un enlace duplicado el comportamiento será como hasta ahora.
+    ///////////////////////////////////////
+    protected static function hasAlreadyBeenSubmitted($link)
+    {
+        if ($existing = static::where('link', $link)->first()) {
+            $existing->touch();
+            $existing->save();
+            return true;
+        }
+        return false;
+    }
 }
