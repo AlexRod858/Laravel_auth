@@ -16,8 +16,9 @@ class CommunityLinkController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Channel $channel = null)
+
     {
-        // dd($channel);
+        // dd($channel->title);
         $channels = Channel::orderBy('title', 'asc')->get();
 
         if ($channel === null) {
@@ -28,7 +29,7 @@ class CommunityLinkController extends Controller
                 ->paginate(25);
         }
 
-        return view('community/index', compact('links', 'channels'));
+        return view('community/index', compact('links', 'channels', 'channel'));
     }
 
     /**
@@ -52,7 +53,7 @@ class CommunityLinkController extends Controller
     {
         $this->validate($request, [
             'title' => 'required',
-            'link' => 'required|active_url',
+            'link' => 'required|active_url', //esto me falla
             'channel_id' => 'required|exists:channels,id'
         ]);
         /////
@@ -66,13 +67,11 @@ class CommunityLinkController extends Controller
             $link = new CommunityLink();
             $link->user_id = Auth::id();
             /////////////// P R O B L E M A  C O N  M E T O D O ////////////////
-            $linkSubmitted = $link->hasAlreadyBeenSubmitted($request->link);
-            if ($linkSubmitted){
-                //////////////////////////////////////////////////////
-                return back()->with('success', 'Link updated successfully');
+            if ($link->hasAlreadyBeenSubmitted($request->link)) {
+                return back()->with('success', 'Link update successfully!');
             } else {
                 CommunityLink::create($request->all());
-                return back()->with('success', 'Link created successfully');
+                return back()->with('success', 'Link created successfully!');
             }
         } else {
             CommunityLink::create($request->all());
