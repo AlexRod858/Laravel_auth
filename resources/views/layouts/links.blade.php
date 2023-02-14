@@ -1,11 +1,13 @@
 
-    <h1>Community</h1>
+    
     
         @forelse ($links as $link)
 
             <li>
                 <span class="label label-default" style="background: {{ $link->channel->color }}">
-                    {{ $link->channel->title }}
+                    <a href="/community/{{ $link->channel->slug }}" target="_blank">
+                        {{ $link->channel->title }}
+                    </a>
                 </span>
                 <a href="{{ $link->link }}" target="_blank">
                     {{ $link->title }}

@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
 });
 Route::get('/community', [App\Http\Controllers\CommunityLinkController::class, 'index'])->middleware(['auth', 'verified'])->name('community');;
 Route::post('community', [App\Http\Controllers\CommunityLinkController::class, 'store'])->middleware(['auth', 'verified'])->name('community');;
-
+////
+Route::get('community/{channel}', [App\Http\Controllers\CommunityLinkController::class, 'index']);
 ////
 require __DIR__.'/auth.php';

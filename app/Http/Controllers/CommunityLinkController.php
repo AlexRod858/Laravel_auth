@@ -15,13 +15,20 @@ class CommunityLinkController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Channel $channel = null)
     {
-        // POSIBLE ERROR AQUI $links//
-        $links = CommunityLink::where('approved', true)->latest('updated_at')->paginate(25);
+        // dd($channel);
         $channels = Channel::orderBy('title', 'asc')->get();
-        return view('community/index', compact('links', 'channels'));
 
+        if ($channel === null) {
+            $links = CommunityLink::where('approved', true)->latest('updated_at')->paginate(25);
+        } else {
+            $links = CommunityLink::join('channels', 'community_links.channel_id', '=', 'channels.id')
+                ->where('approved', true)->where("channels.slug", $channel["slug"])->latest('community_links.updated_at')
+                ->paginate(25);
+        }
+
+        return view('community/index', compact('links', 'channels'));
     }
 
     /**
@@ -54,18 +61,19 @@ class CommunityLinkController extends Controller
         /////
         CommunityLink::create($request->all());
 
-        if ($approved ) {
-            return back()->with('success','Link created successfully');
+        if ($approved) {
             //////////////////////////////////////////////////////
-            if(CommunityLink::hasAlreadyBeenSubmitted($request['link'])){
-                CommunityLink::hasAlreadyBeenSubmitted($request['link']);
-                return back()->with('success','Link updated successfully');
-            }else{
+            $link = new CommunityLink();
+            $link->user_id = Auth::id();
+            /////////////// P R O B L E M A  C O N  M E T O D O ////////////////
+            $linkSubmitted = $link->hasAlreadyBeenSubmitted($request->link);
+            if ($linkSubmitted){
+                //////////////////////////////////////////////////////
+                return back()->with('success', 'Link updated successfully');
+            } else {
                 CommunityLink::create($request->all());
-                return back()->with('success','Link created successfully');
+                return back()->with('success', 'Link created successfully');
             }
-
-
         } else {
             CommunityLink::create($request->all());
             ///////////////////////////////////////////////////////
