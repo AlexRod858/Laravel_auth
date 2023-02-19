@@ -3,7 +3,7 @@
 @section('content')
     <div class="container">
         <div class="row">
-            <div class="col-md-8">
+                    <div class="col-md-8">
 
                 @if ($links[0]->title == 'PHP' || $links[1]->title == 'C#' || $links[2]->title == 'javascript'|| $links[3]->title == 'Java')
                 <h1 class="h1">Community - {{ $links[0]->title }}</h1>
