@@ -31,6 +31,11 @@ class CommunityLink extends Model
 //  el timestamp y se sube a la primera posición. Si un usuario no verificado 
 //  sube un enlace duplicado el comportamiento será como hasta ahora.
     ///////////////////////////////////////
+    public function users()
+{
+return $this->belongsToMany(User::class, 'community_link_users');
+}
+//////////////////////////////////
     protected static function hasAlreadyBeenSubmitted($link)
     {
         if ($existing = static::where('link', $link)->first()) {

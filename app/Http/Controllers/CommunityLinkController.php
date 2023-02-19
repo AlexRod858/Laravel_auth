@@ -16,20 +16,19 @@ class CommunityLinkController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Channel $channel = null)
-    {
-        // dd($channel);
-        $channels = Channel::orderBy('title', 'asc')->get();
-
-        if ($channel === null) {
-            $links = CommunityLink::where('approved', true)->latest('updated_at')->paginate(25);
-        } else {
-            $links = CommunityLink::join('channels', 'community_links.channel_id', '=', 'channels.id')
-                ->where('approved', true)->where("channels.slug", $channel["slug"])->latest('community_links.updated_at')
-                ->paginate(25);
-        }
-
-        return view('community/index', compact('links', 'channels'));
+{
+    $channels = Channel::orderBy('title', 'asc')->get();
+    $linksQuery = CommunityLink::join('channels', 'community_links.channel_id', '=', 'channels.id')
+                    ->where('approved', true)->latest('community_links.updated_at');
+    
+    if ($channel !== null) {
+        $linksQuery->where('channels.slug', $channel->slug);
     }
+    
+    $links = $linksQuery->paginate(25);
+
+    return view('community/index', compact('links', 'channels'));
+}
 
     /**
      * Show the form for creating a new resource.
